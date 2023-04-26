@@ -25,12 +25,12 @@ setup:
 
 compile:
 	@echo -n "Compiling source files..."
-
+	@$(CC) $(CFLAGS) -o $(OBJS)/netlib.o -c src/utils/netlib.c
 	@echo "   done"
 
 link: setup compile
 	@echo -n "Linking binaries..."
-	@$(CC) $(CFLAGS) -o $(BINS)/$(RELEASE) src/main.c # $(OBJS)/*.o
+	@$(CC) $(CFLAGS) -o $(BINS)/$(RELEASE) src/main.c $(OBJS)/*.o
 	@echo "   done"
 
 clean:
