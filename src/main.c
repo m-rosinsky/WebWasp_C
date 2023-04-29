@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/utils/queue.h"
+#include "../include/console.h"
 
 /*!
  * @brief This is a temporary function for the initial commit.
@@ -17,48 +17,22 @@
 int
 main ()
 {
-    queue_t * p_q = queue_create();
-    if (NULL == p_q)
+    console_t * p_console = console_create(5);
+    if (NULL == p_console)
     {
-        printf("create\n");
+        printf("Failed to create console context...\n");
         return 1;
     }
 
-    int nums[5] = {1,2,3,4,5};
-    for (size_t i = 0; i < 5; ++i)
-    {
-        if (-1 == queue_enq(p_q, nums + i))
-        {
-            printf("enq\n");
-            return 1;
-        }
-    }
+    console_run(p_console);
 
-    int * p_i = NULL;
-    printf("[");
-    while (0 != p_q->size)
+    if (-1 == console_destroy(p_console))
     {
-        p_i = queue_deq(p_q);
-        if (NULL == p_i)
-        {
-            printf("deq\n");
-            return 1;
-        }
-        printf("%d", *p_i);
-        if (0 != p_q->size)
-        {
-            printf(", ");
-        }
-    }
-    printf("]\n");
-
-    if (-1 == queue_destroy(p_q))
-    {
-        printf("destroy\n");
+        printf("Failed to destroy console context...\n");
         return 1;
     }
 
-    printf("success\n");
+    printf("Exited with success\n");
     return 0;
 }
 

@@ -25,7 +25,13 @@ setup:
 
 compile:
 	@echo -n "Compiling source files..."
+
+# Utility sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/queue.o -c src/utils/queue.c
+
+# Src sources
+	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console.c
+	
 	@echo "   done"
 
 link: setup compile

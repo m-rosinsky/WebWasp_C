@@ -56,3 +56,4 @@ tok
 
 # VSCode Config Files
 .*config*
+.vscode
