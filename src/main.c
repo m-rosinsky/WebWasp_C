@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/utils/netlib.h"
+#include "../include/utils/queue.h"
 
 /*!
  * @brief This is a temporary function for the initial commit.
@@ -17,48 +17,44 @@
 int
 main ()
 {
-    int s_fd = nlib_create();
-    if (-1 == s_fd)
+    queue_t * p_q = queue_create();
+    if (NULL == p_q)
     {
         printf("create\n");
         return 1;
     }
 
-    if (-1 == nlib_connect(s_fd, "127.0.0.1", 8000))
+    int nums[5] = {1,2,3,4,5};
+    for (size_t i = 0; i < 5; ++i)
     {
-        printf("connect\n");
-        return 1;
+        if (-1 == queue_enq(p_q, nums + i))
+        {
+            printf("enq\n");
+            return 1;
+        }
     }
 
-    char * p_data = "GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n";
-    if (-1 == nlib_send(s_fd, p_data, strlen(p_data), 5000))
+    int * p_i = NULL;
+    printf("[");
+    while (0 != p_q->size)
     {
-        printf("send\n");
-        return 1;
+        p_i = queue_deq(p_q);
+        if (NULL == p_i)
+        {
+            printf("deq\n");
+            return 1;
+        }
+        printf("%d", *p_i);
+        if (0 != p_q->size)
+        {
+            printf(", ");
+        }
     }
+    printf("]\n");
 
-    char p_resp[1024];
-    memset(p_resp, '\0', 1024);
-    if (-1 == nlib_recv(s_fd, p_resp, 1024, 5000))
+    if (-1 == queue_destroy(p_q))
     {
-        printf("recv\n");
-        return 1;
-    }
-
-    printf("%s\n\n", p_resp);
-
-    memset(p_resp, '\0', 1024);
-    if (-1 == nlib_recv(s_fd, p_resp, 1024, 5000))
-    {
-        printf("recv\n");
-        return 1;
-    }
-
-    printf("%s\n\n", p_resp);
-
-    if (-1 == nlib_close(s_fd))
-    {
-        printf("close\n");
+        printf("destroy\n");
         return 1;
     }
 

@@ -25,7 +25,7 @@ setup:
 
 compile:
 	@echo -n "Compiling source files..."
-	@$(CC) $(CFLAGS) -o $(OBJS)/netlib.o -c src/utils/netlib.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/queue.o -c src/utils/queue.c
 	@echo "   done"
 
 link: setup compile

@@ -8,3 +8,14 @@
 ```
 ---
 
+WebWasp is a multi-purpose pentesting tool for use against websites. It
+offers an all-in-one command line suite, similar to metasploit.
+
+Primary features include:
+
+- Web server info enumeration
+- GET and POST request and response
+- Directory bruteforcing
+- Packet header manipulation
+- File download
+
