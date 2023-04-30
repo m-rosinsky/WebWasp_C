@@ -6,43 +6,28 @@
  *          commands of to respective modules.
  */
 
+#include <ctype.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../include/console.h"
 
-/*!
- * @brief This is a helper function to handle signals.
- *
- * @param[in] sig The number for the signal caught.
- *
- * @return No return value expected.
- */
-static void
-sigint_handler (int sig)
-{
-    printf("\nReceived signal %d: (%s)...\n", sig, strsignal(sig));
-    return;
-}
+#define CTRL_KEY(k) ((k) & 0x1F)
 
-/*!
- * @brief This is a helper function to display the welcome banner.
- *
- * @return No return value expected.
- */
-static void
-banner()
-{
-    printf("\
-      __        __   _      __        __\n\
-      \\ \\      / /__| |__   \\ \\      / /_ _ ___ _ __ \n\
-       \\ \\ /\\ / / _ \\ '_ \\   \\ \\ /\\ / / _` / __| '_ \\ \n\
-        \\ V  V /  __/ |_) |   \\ V  V / (_| \\__ \\ |_) |   \n\
-         \\_/\\_/ \\___|_.__/     \\_/\\_/ \\__,_|___/ .__/ \n\
-            Get Stinging                        |_|    \n\
-                            Author: Mike Rosinsky\n\n");
-}
+/***   static function declarations   ***/
+
+static void sigint_handler (int sig);
+static void banner();
+
+static int
+console_initialize (console_t * p_console);
+
+static int
+console_finalize (console_t * p_console);
+
+/***   public functions   ***/
 
 /*!
  * @brief This function creates a new console context.
@@ -65,6 +50,12 @@ console_create (const size_t history_max)
     // Create the history queue.
     p_console->p_history = history_create(history_max);
     if (NULL == p_console->p_history)
+    {
+        goto EXIT;
+    }
+
+    // Initialize the termios configurations.
+    if (-1 == console_initialize(p_console))
     {
         goto EXIT;
     }
@@ -110,6 +101,10 @@ console_destroy (console_t * p_console)
     EXIT:
         if (NULL != p_console)
         {
+            console_finalize(p_console);
+        }
+        if (NULL != p_console)
+        {
             free(p_console);
             p_console = NULL;
         }
@@ -140,44 +135,149 @@ console_run (console_t * p_console)
     if ((-1 == sigaction(SIGINT, &sa, NULL)) ||
         (-1 == sigaction(SIGQUIT, &sa, NULL)))
     {
-        printf("ERROR: Failed to create signal handler...\n");
+        printf("ERROR: Failed to create signal handler...\r\n");
         goto EXIT;
     }
 
-    // Display the welcome banner.
     banner();
 
-    // User input loop.
-    char cmd_buff[MAX_CMD_SIZE];
+    char c;
     for (;;)
     {
-        memset(cmd_buff, '\0', MAX_CMD_SIZE);
-
-        printf("> ");
-        if (NULL == fgets(cmd_buff, MAX_CMD_SIZE, stdin))
+        c = '\0';
+        read(STDIN_FILENO, &c, 1);
+        if (CTRL_KEY('c') == c)
         {
             break;
         }
 
-        cmd_buff[strlen(cmd_buff)-1] = '\x00';
-        printf("%s\n", cmd_buff);
-
-        // Add command to history.
-        if (-1 == history_push(p_console->p_history, cmd_buff))
+        if (iscntrl(c))
         {
-            goto EXIT;
+            printf("%d\r\n", c);
         }
-
-        // DEBUG
-        for (size_t i = 0; i < p_console->p_history->size; ++i)
+        else
         {
-            printf("History[%ld]: '%s'\n", i, p_console->p_history->pp_data[i]);
+            printf("%d ('%c')\r\n", c, c);
         }
-        // DEBUG
     }
 
     EXIT:
         return;
+}
+
+/***   static functions   ***/
+
+/*!
+ * @brief This is a helper function to handle signals.
+ *
+ * @param[in] sig The number for the signal caught.
+ *
+ * @return No return value expected.
+ */
+static void
+sigint_handler (int sig)
+{
+    printf("\r\nReceived signal %d: (%s)...\r\n", sig, strsignal(sig));
+    return;
+}
+
+/*!
+ * @brief This is a helper function to display the welcome banner.
+ *
+ * @return No return value expected.
+ */
+static void
+banner()
+{
+    printf("\
+      __        __   _      __        __\r\n\
+      \\ \\      / /__| |__   \\ \\      / /_ _ ___ _ __ \r\n\
+       \\ \\ /\\ / / _ \\ '_ \\   \\ \\ /\\ / / _` / __| '_ \\ \r\n\
+        \\ V  V /  __/ |_) |   \\ V  V / (_| \\__ \\ |_) |   \r\n\
+         \\_/\\_/ \\___|_.__/     \\_/\\_/ \\__,_|___/ .__/ \r\n\
+            Get Stinging                        |_|    \r\n\
+                            Author: Mike Rosinsky\r\n\r\n");
+}
+
+/*!
+ * @brief This function initializes the console context, mainly taking
+ *          the form of termios console configurations.
+ * 
+ * @param[in] p_console The console context.
+ * 
+ * @return 0 on success, -1 on error.
+ */
+static int
+console_initialize (console_t * p_console)
+{
+    int status = -1;
+    if (NULL == p_console)
+    {
+        goto EXIT;
+    }
+
+    // Save the current console configuration.
+    if ((-1 == tcgetattr(STDIN_FILENO, &(p_console->old_console))) ||
+        (-1 == tcgetattr(STDIN_FILENO, &(p_console->new_console))))
+    {
+        goto EXIT;
+    }
+
+    // Configure local flags.
+    p_console->new_console.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+
+    // Configure input flags.
+    p_console->new_console.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+
+    // Configure output flags.
+    p_console->new_console.c_oflag &= ~(OPOST);
+
+    // Configure character size.
+    p_console->new_console.c_cflag |= (CS8);
+
+    // Set control characters.
+    p_console->new_console.c_cc[VMIN] = 0;
+    p_console->new_console.c_cc[VTIME] = 1;
+
+    // Apply new settings to the terminal.
+    if (-1 == tcsetattr(STDIN_FILENO, TCSAFLUSH, &(p_console->new_console)))
+    {
+        goto EXIT;
+    }
+
+    status = 0;
+
+    EXIT:
+        return status;
+}
+
+/*!
+ * @brief This function finalizes the console context, restoring previous
+ *          termios console configurations.
+ * 
+ * @param[in] p_console The console context.
+ * 
+ * @return 0 on success, -1 on error.
+ */
+static int
+console_finalize (console_t * p_console)
+{
+    int status = -1;
+    if (NULL == p_console)
+    {
+        goto EXIT;
+    }
+
+    // Restore the terminal to original settings.
+    if (-1 == tcsetattr(STDIN_FILENO, TCSAFLUSH, &(p_console->old_console)))
+    {
+        goto EXIT;
+    }
+    
+    status = 0;
+
+    EXIT:
+        return status;
 }
 
 /***   end of file   ***/

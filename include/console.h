@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <termios.h>
 
 #include "utils/history.h"
 
@@ -15,12 +16,14 @@
 /*!
  * @brief This datatype defines a console context.
  *
- * @param history_max The maximum number of commands to remember.
  * @param p_history The command history queue.
+ * @param old_console The old termios console config.
  */
 typedef struct _console
 {
     history_t * p_history;
+    struct termios old_console;
+    struct termios new_console;
 } console_t;
 
 /*!
