@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../include/console.h"
+#include "../include/utils/history.h"
 
 /*!
  * @brief This is a temporary function for the initial commit.

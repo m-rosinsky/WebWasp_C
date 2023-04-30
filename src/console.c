@@ -27,6 +27,24 @@ sigint_handler (int sig)
 }
 
 /*!
+ * @brief This is a helper function to display the welcome banner.
+ *
+ * @return No return value expected.
+ */
+static void
+banner()
+{
+    printf("\
+      __        __   _      __        __\n\
+      \\ \\      / /__| |__   \\ \\      / /_ _ ___ _ __ \n\
+       \\ \\ /\\ / / _ \\ '_ \\   \\ \\ /\\ / / _` / __| '_ \\ \n\
+        \\ V  V /  __/ |_) |   \\ V  V / (_| \\__ \\ |_) |   \n\
+         \\_/\\_/ \\___|_.__/     \\_/\\_/ \\__,_|___/ .__/ \n\
+            Get Stinging                        |_|    \n\
+                            Author: Mike Rosinsky\n\n");
+}
+
+/*!
  * @brief This function creates a new console context.
  *
  * @param[in] history_max The maximum number of commands to remember.
@@ -91,6 +109,11 @@ console_destroy (console_t * p_console)
     status = 0;
 
     EXIT:
+        if (NULL != p_console)
+        {
+            free(p_console);
+            p_console = NULL;
+        }
         return status;
 }
 
@@ -115,11 +138,15 @@ console_run (console_t * p_console)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
 
-    if (-1 == sigaction(SIGINT, &sa, NULL))
+    if ((-1 == sigaction(SIGINT, &sa, NULL)) ||
+        (-1 == sigaction(SIGQUIT, &sa, NULL)))
     {
         printf("ERROR: Failed to create signal handler...\n");
         goto EXIT;
     }
+
+    // Display the welcome banner.
+    banner();
 
     // User input loop.
     char cmd_buff[MAX_CMD_SIZE];

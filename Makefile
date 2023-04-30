@@ -28,6 +28,7 @@ compile:
 
 # Utility sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/queue.o -c src/utils/queue.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/utils/history.c
 
 # Src sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console.c
