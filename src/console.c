@@ -60,11 +60,10 @@ console_create (const size_t history_max)
     {
         goto EXIT;
     }
-    p_console->history_max = history_max;
     p_console->p_history = NULL;
 
     // Create the history queue.
-    p_console->p_history = queue_create();
+    p_console->p_history = history_create(history_max);
     if (NULL == p_console->p_history)
     {
         goto EXIT;
@@ -100,7 +99,7 @@ console_destroy (console_t * p_console)
 
     // Destroy the command history queue.
     if ((NULL != p_console->p_history) &&
-        (-1 == queue_destroy(p_console->p_history)))
+        (-1 == history_destroy(p_console->p_history)))
     {
         goto EXIT;
     }
@@ -160,9 +159,21 @@ console_run (console_t * p_console)
             break;
         }
 
-        printf("%s", cmd_buff);
+        cmd_buff[strlen(cmd_buff)-1] = '\x00';
+        printf("%s\n", cmd_buff);
 
         // Add command to history.
+        if (-1 == history_push(p_console->p_history, cmd_buff))
+        {
+            goto EXIT;
+        }
+
+        // DEBUG
+        for (size_t i = 0; i < p_console->p_history->size; ++i)
+        {
+            printf("History[%ld]: '%s'\n", i, p_console->p_history->pp_data[i]);
+        }
+        // DEBUG
     }
 
     EXIT:

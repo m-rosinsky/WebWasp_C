@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 
-#include "utils/queue.h"
+#include "utils/history.h"
 
 #define MAX_CMD_SIZE 1024
 
@@ -20,8 +20,7 @@
  */
 typedef struct _console
 {
-    size_t history_max;
-    queue_t * p_history;
+    history_t * p_history;
 } console_t;
 
 /*!
