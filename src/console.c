@@ -14,11 +14,15 @@
 
 #include "../include/console.h"
 
-#define CTRL_KEY(k) ((k) & 0x1F)
+/***   key macros   ***/
+
+#define KEY_CTRL(k) ((k) & 0x1F)
+#define KEY_ENTER 13
+#define KEY_ESCAPE 27
+#define KEY_BACKSPACE 127
 
 /***   static function declarations   ***/
 
-static void sigint_handler (int sig);
 static void banner();
 
 static int
@@ -26,6 +30,9 @@ console_initialize (console_t * p_console);
 
 static int
 console_finalize (console_t * p_console);
+
+static int
+get_cmd (char * p_cmd);
 
 /***   public functions   ***/
 
@@ -126,39 +133,23 @@ console_run (console_t * p_console)
         goto EXIT;
     }
 
-    // Create the signal handler to catch sigints.
-    struct sigaction sa;
-    sa.sa_handler = sigint_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-
-    if ((-1 == sigaction(SIGINT, &sa, NULL)) ||
-        (-1 == sigaction(SIGQUIT, &sa, NULL)))
-    {
-        printf("ERROR: Failed to create signal handler...\r\n");
-        goto EXIT;
-    }
-
     banner();
 
-    char c;
+    char cmd_buff[MAX_CMD_SIZE];
     for (;;)
     {
-        c = '\0';
-        read(STDIN_FILENO, &c, 1);
-        if (CTRL_KEY('c') == c)
+        memset(cmd_buff, '\0', MAX_CMD_SIZE);
+        printf("\r\n> ");
+        fflush(stdout);
+        if (0 != get_cmd(cmd_buff))
         {
+            printf("\r\n");
+            fflush(stdout);
             break;
         }
 
-        if (iscntrl(c))
-        {
-            printf("%d\r\n", c);
-        }
-        else
-        {
-            printf("%d ('%c')\r\n", c, c);
-        }
+        // Display the command buffered.
+        printf("\r\n%s", cmd_buff);
     }
 
     EXIT:
@@ -166,20 +157,6 @@ console_run (console_t * p_console)
 }
 
 /***   static functions   ***/
-
-/*!
- * @brief This is a helper function to handle signals.
- *
- * @param[in] sig The number for the signal caught.
- *
- * @return No return value expected.
- */
-static void
-sigint_handler (int sig)
-{
-    printf("\r\nReceived signal %d: (%s)...\r\n", sig, strsignal(sig));
-    return;
-}
 
 /*!
  * @brief This is a helper function to display the welcome banner.
@@ -236,8 +213,8 @@ console_initialize (console_t * p_console)
     p_console->new_console.c_cflag |= (CS8);
 
     // Set control characters.
-    p_console->new_console.c_cc[VMIN] = 0;
-    p_console->new_console.c_cc[VTIME] = 1;
+    // p_console->new_console.c_cc[VMIN] = 0;
+    // p_console->new_console.c_cc[VTIME] = 1;
 
     // Apply new settings to the terminal.
     if (-1 == tcsetattr(STDIN_FILENO, TCSAFLUSH, &(p_console->new_console)))
@@ -275,6 +252,98 @@ console_finalize (console_t * p_console)
     }
     
     status = 0;
+
+    EXIT:
+        return status;
+}
+
+/*!
+ * @brief This function collects user input for commands.
+ *
+ * @param[in] p_cmd The buffer to store the command.
+ * 
+ * @return 0 on success, -1 on error, 1 on exit.
+ */
+static int
+get_cmd (char * p_cmd)
+{
+    int status = -1;
+    if (NULL == p_cmd)
+    {
+        goto EXIT;
+    }
+
+    char c, e1, e2;
+    memset(p_cmd, '\0', MAX_CMD_SIZE);
+    size_t cmd_idx = 0;
+    for (;;)
+    {
+        c = '\0';
+        if (-1 == read(STDIN_FILENO, &c, 1))
+        {
+            goto EXIT;
+        }
+
+        // printf("%d", c);
+        switch (c)
+        {
+            case KEY_CTRL('c'):
+                status = 1;
+                goto EXIT;
+            break;
+            case KEY_ENTER:
+                status = 0;
+                goto EXIT;
+            break;
+            case KEY_ESCAPE:
+                if ((-1 == read(STDIN_FILENO, &e1, 1)) ||
+                    (-1 == read(STDIN_FILENO, &e2, 1)))
+                {
+                    goto EXIT;
+                }
+                if (91 == e1)
+                {
+                    switch (e2)
+                    {
+                        // Up arrow.
+                        case 65:
+                            printf("up");
+                        break;
+                        // Down arrow.
+                        case 66:
+                            printf("down");
+                        break;
+                        // Right arrow.
+                        case 67:
+                            printf("right");
+                        break;
+                        // Left arrow.
+                        case 68:
+                            if (cmd_idx == 0) { break; }
+                            printf("\b");
+                            cmd_idx--;
+                        break;
+                    }
+                    fflush(stdout);
+                }
+            break;
+            case KEY_BACKSPACE:
+                if (0 == cmd_idx) { break; }
+                printf("\b \b");
+                fflush(stdout);
+                cmd_idx--;
+                p_cmd[cmd_idx] = '\0';
+            break;
+            default:
+                if (cmd_idx < MAX_CMD_SIZE)
+                {
+                    printf("%c", c);
+                    fflush(stdout);
+                    p_cmd[cmd_idx++] = c;
+                }
+            break;
+        }
+    }
 
     EXIT:
         return status;
