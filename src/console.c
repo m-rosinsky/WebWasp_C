@@ -134,12 +134,13 @@ console_run (console_t * p_console)
     }
 
     banner();
+    printf("\r\n");
 
     char cmd_buff[MAX_CMD_SIZE];
     for (;;)
     {
         memset(cmd_buff, '\0', MAX_CMD_SIZE);
-        printf("\r\n> ");
+        printf("> ");
         fflush(stdout);
         if (0 != get_cmd(cmd_buff))
         {
@@ -147,9 +148,13 @@ console_run (console_t * p_console)
             fflush(stdout);
             break;
         }
+        printf("\r\n");
+
+        // Add the command to the console history.
+        history_push(p_console->p_history, cmd_buff);
 
         // Display the command buffered.
-        printf("\r\n%s", cmd_buff);
+        printf("%s\r\n", cmd_buff);
     }
 
     EXIT:
@@ -275,7 +280,8 @@ get_cmd (char * p_cmd)
 
     char c, e1, e2;
     memset(p_cmd, '\0', MAX_CMD_SIZE);
-    size_t cmd_idx = 0;
+    size_t cmd_idx = 0; // The current position in the string.
+    size_t cmd_len = 0; // The length of the string.
     for (;;)
     {
         c = '\0';
@@ -329,18 +335,62 @@ get_cmd (char * p_cmd)
             break;
             case KEY_BACKSPACE:
                 if (0 == cmd_idx) { break; }
-                printf("\b \b");
+
+                // Move the cursor back.
+                printf("\b");
+
+                // Shift the characters in front of the cursor forward one.
+                for (size_t i = cmd_idx; i < cmd_len; ++i)
+                {
+                    p_cmd[i - 1] = p_cmd[i];
+                    printf("%c", p_cmd[i]);
+                }
+
+                // Clear the last character.
+                printf(" ");
+
+                // Return cursor to original position.
+                for (size_t i = cmd_idx; i < cmd_len; ++i)
+                {
+                    printf("\b");
+                }
+                printf("\b");
+
+                // Print and update variables.
                 fflush(stdout);
+                p_cmd[cmd_len-1] = '\0';
                 cmd_idx--;
-                p_cmd[cmd_idx] = '\0';
+                cmd_len--;
             break;
             default:
-                if (cmd_idx < MAX_CMD_SIZE)
+                if (cmd_len >= MAX_CMD_SIZE) { break; }
+
+                // Print the character.
+                printf("%c", c);
+
+                // Shift all characters in buffer back one.
+                for (size_t i = cmd_len; i > cmd_idx; --i)
                 {
-                    printf("%c", c);
-                    fflush(stdout);
-                    p_cmd[cmd_idx++] = c;
+                    p_cmd[i] = p_cmd[i-1];
                 }
+
+                // Update buffer and variables.
+                p_cmd[cmd_idx] = c;
+                cmd_len++;
+                cmd_idx++;
+
+                // Print the following characters in the buffer.
+                for (size_t i = cmd_idx; i < cmd_len; ++i)
+                {
+                    printf("%c", p_cmd[i]);
+                }
+
+                // Return cursor to starting position.
+                for (size_t i = cmd_idx; i < cmd_len; ++i)
+                {
+                    printf("\b");
+                }
+                fflush(stdout);
             break;
         }
     }
