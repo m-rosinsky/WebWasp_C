@@ -32,7 +32,7 @@ static int
 console_finalize (console_t * p_console);
 
 static int
-get_cmd (char * p_cmd);
+get_cmd (console_t * p_console, char * p_cmd);
 
 /***   public functions   ***/
 
@@ -142,7 +142,7 @@ console_run (console_t * p_console)
         memset(cmd_buff, '\0', MAX_CMD_SIZE);
         printf("> ");
         fflush(stdout);
-        if (0 != get_cmd(cmd_buff))
+        if (0 != get_cmd(p_console, cmd_buff))
         {
             printf("\r\n");
             fflush(stdout);
@@ -270,18 +270,26 @@ console_finalize (console_t * p_console)
  * @return 0 on success, -1 on error, 1 on exit.
  */
 static int
-get_cmd (char * p_cmd)
+get_cmd (console_t * p_console, char * p_cmd)
 {
     int status = -1;
-    if (NULL == p_cmd)
+    if ((NULL == p_console) ||
+        (NULL == p_cmd))
     {
         goto EXIT;
     }
 
     char c, e1, e2;
     memset(p_cmd, '\0', MAX_CMD_SIZE);
+
+    // String to hold the current command if the user begins scrolling
+    // through historical commands.
+    char p_backup[MAX_CMD_SIZE];
+    memset(p_backup, '\0', MAX_CMD_SIZE);
+
     size_t cmd_idx = 0; // The current position in the string.
     size_t cmd_len = 0; // The length of the string.
+    long hist_idx = -1; // The history idx. (-1 is the current command).
     for (;;)
     {
         c = '\0';
@@ -313,15 +321,90 @@ get_cmd (char * p_cmd)
                     {
                         // Up arrow.
                         case 65:
-                            printf("up");
+                            if ((size_t) (hist_idx + 1) >= p_console->p_history->size) { break; }
+                            hist_idx++;
+
+                            // Backup the current command if this is the first
+                            // up arrow press.
+                            if (0 == hist_idx)
+                            {
+                                strncpy(p_backup, p_cmd, MAX_CMD_SIZE-1);
+                            }
+
+                            // Set the current command to the historical command.
+                            memset(p_cmd, '\0', MAX_CMD_SIZE);
+                            strcpy(p_cmd, p_console->p_history->pp_data[hist_idx]);
+                            
+                            // Return cursor to start of line.
+                            for (size_t i = 0; i < cmd_idx; ++i)
+                            {
+                                printf("\b");
+                            }
+                            // Blank the line.
+                            for (size_t i = 0; i < cmd_len; ++i)
+                            {
+                                printf(" ");
+                            }
+                            // Return cursor to start of line.
+                            for (size_t i = 0; i < cmd_len; ++i)
+                            {
+                                printf("\b");
+                            }
+                            // Print the command.
+                            printf("%s", p_cmd);
+                            fflush(stdout);
+
+                            // Set variables.
+                            cmd_len = strlen(p_cmd);
+                            cmd_idx = cmd_len;
                         break;
                         // Down arrow.
                         case 66:
-                            printf("down");
+                            if (-1 == hist_idx) { break; }
+                            hist_idx--;
+
+                            // If we have returned to our backup command.
+                            if (-1 == hist_idx)
+                            {
+                                strncpy(p_cmd, p_backup, MAX_CMD_SIZE-1);
+                            }
+                            else
+                            {
+                                // Set the current command to the historical
+                                // command.
+                                memset(p_cmd, '\0', MAX_CMD_SIZE);
+                                strcpy(p_cmd, p_console->p_history->pp_data[hist_idx]);
+                            }
+
+                            // Return cursor to start of line.
+                            for (size_t i = 0; i < cmd_idx; ++i)
+                            {
+                                printf("\b");
+                            }
+                            // Blank the line.
+                            for (size_t i = 0; i < cmd_len; ++i)
+                            {
+                                printf(" ");
+                            }
+                            // Return cursor to start of line.
+                            for (size_t i = 0; i < cmd_len; ++i)
+                            {
+                                printf("\b");
+                            }
+                            // Print the command.
+                            printf("%s", p_cmd);
+                            fflush(stdout);
+
+                            // Set variables.
+                            cmd_len = strlen(p_cmd);
+                            cmd_idx = cmd_len;
                         break;
                         // Right arrow.
                         case 67:
-                            printf("right");
+                            if (cmd_idx >= cmd_len) { break; }
+                            printf("%c", p_cmd[cmd_idx]);
+                            fflush(stdout);
+                            cmd_idx++;
                         break;
                         // Left arrow.
                         case 68:
