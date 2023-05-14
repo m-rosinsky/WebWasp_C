@@ -53,7 +53,7 @@ console_create (const size_t history_max)
         goto EXIT;
     }
     p_console->p_history = NULL;
-    p_console->p_command = NULL;
+    p_console->p_parser = NULL;
 
     // Create the history queue.
     p_console->p_history = history_create(history_max);
@@ -63,8 +63,8 @@ console_create (const size_t history_max)
     }
 
     // Create the parsed command context.
-    p_console->p_command = command_create();
-    if (NULL == p_console->p_command)
+    p_console->p_parser = parser_create();
+    if (NULL == p_console->p_parser)
     {
         goto EXIT;
     }
@@ -112,12 +112,12 @@ console_destroy (console_t * p_console)
     p_console->p_history = NULL;
 
     // Destroy the parsed command context.
-    if ((NULL != p_console->p_command) &&
-        (-1 == command_destroy(p_console->p_command)))
+    if ((NULL != p_console->p_parser) &&
+        (-1 == parser_destroy(p_console->p_parser)))
     {
         goto EXIT;
     }
-    p_console->p_command = NULL;
+    p_console->p_parser = NULL;
 
     status = 0;
 
@@ -173,20 +173,20 @@ console_run (console_t * p_console)
         printf("%s\r\n", cmd_buff);
 
         // Parse the command.
-        if (-1 == command_parse(p_console->p_command, cmd_buff))
+        if (-1 == parser_parse(p_console->p_parser, cmd_buff))
         {
             goto EXIT;
         }
         
         // Handle the command.
-        printf("argc: %ld\r\n", p_console->p_command->argc);
-        for (size_t i = 0; i < p_console->p_command->argc; ++i)
+        printf("argc: %ld\r\n", p_console->p_parser->argc);
+        for (size_t i = 0; i < p_console->p_parser->argc; ++i)
         {
-            printf("argv[%ld]: '%s'\r\n", i, p_console->p_command->pp_argv[i]);
+            printf("argv[%ld]: '%s'\r\n", i, p_console->p_parser->pp_argv[i]);
         }
 
         // Clear the command.
-        if (-1 == command_clear(p_console->p_command))
+        if (-1 == parser_clear(p_console->p_parser))
         {
             goto EXIT;
         }

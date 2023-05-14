@@ -1,45 +1,45 @@
 /*!
- * @file command.c
+ * @file parser.c
  *
  * @brief This file contains functions for handling user commands,
  *          including parsing and actual function behavior.
  */
 
-#include "../include/command.h"
+#include "../include/parser.h"
 
 /*!
- * @brief This function creates a new empty command_t context.
+ * @brief This function creates a new empty parser context.
  *
- * @return Pointer to new commant_t context. NULL on error.
+ * @return Pointer to new parser context. NULL on error.
  */
-command_t *
-command_create (void)
+parser_t *
+parser_create (void)
 {
-    command_t * p_command = calloc(1, sizeof(command_t));
-    if (NULL == p_command)
+    parser_t * p_parser = calloc(1, sizeof(parser_t));
+    if (NULL == p_parser)
     {
         goto EXIT;
     }
-    p_command->argc = 0;
-    p_command->pp_argv = NULL;
+    p_parser->argc = 0;
+    p_parser->pp_argv = NULL;
 
     EXIT:
-        return p_command;
+        return p_parser;
 }
 
 /*!
- * @brief This function destroys a command_t context.
+ * @brief This function destroys a parse context.
  *
- * @param[in] p_command The command_t context to destroy.
+ * @param[in] p_parser The parse context to destroy.
  * 
  * @return 0 on success, -1 on error.
  */
 int
-command_destroy (command_t * p_command)
+parser_destroy (parser_t * p_parser)
 {
     int status = -1;
-    if ((NULL == p_command) ||
-        (-1 == command_clear(p_command)))
+    if ((NULL == p_parser) ||
+        (-1 == parser_clear(p_parser)))
     {
         goto EXIT;
     }
@@ -47,28 +47,28 @@ command_destroy (command_t * p_command)
     status = 0;
 
     EXIT:
-        if (NULL != p_command)
+        if (NULL != p_parser)
         {
-            free(p_command);
-            p_command = NULL;
+            free(p_parser);
+            p_parser = NULL;
         }
         return status;
 }
 
 /*!
- * @brief This function parses a raw command into a command_t context.
+ * @brief This function parses a raw command into a parser context.
  *
- * @param[out] p_command The command_t context to parse the raw command into.
+ * @param[out] p_parser The parser context to parse the raw command into.
  * @param[in] p_str The raw command to process. This string is consumed
  *                      in the process.
  * 
  * @return 0 on success, -1 on error.
  */
 int
-command_parse (command_t * p_command, char * p_str)
+parser_parse (parser_t * p_parser, char * p_str)
 {
     int status = -1;
-    if ((NULL == p_command) ||
+    if ((NULL == p_parser) ||
         (NULL == p_str))
     {
         goto EXIT;
@@ -87,12 +87,12 @@ command_parse (command_t * p_command, char * p_str)
         strcpy(p_arg, p_token);
 
         // Add the argument to the result.
-        p_command->pp_argv = realloc(p_command->pp_argv,
-                                     (p_command->argc + 1) * sizeof(char *));
-        p_command->pp_argv[p_command->argc] = p_arg;
+        p_parser->pp_argv = realloc(p_parser->pp_argv,
+                                     (p_parser->argc + 1) * sizeof(char *));
+        p_parser->pp_argv[p_parser->argc] = p_arg;
 
         // Increment the argument count.
-        p_command->argc++;
+        p_parser->argc++;
 
         // Get the next token.
         p_token = strtok(NULL, " ");
@@ -108,27 +108,27 @@ command_parse (command_t * p_command, char * p_str)
  * @brief This function clears any currently stored command information
  *          within the context, without destroying the context itself.
  * 
- * @param[in] p_command The command context to clear.
+ * @param[in] p_parser The parser context to clear.
  * 
  * @return 0 on success, -1 on error.
  */
 int
-command_clear (command_t * p_command)
+parser_clear (parser_t * p_parser)
 {
     int status = -1;
-    if (NULL == p_command)
+    if (NULL == p_parser)
     {
         goto EXIT;
     }
 
-    for (size_t i = 0; i < p_command->argc; ++i)
+    for (size_t i = 0; i < p_parser->argc; ++i)
     {
-        free(p_command->pp_argv[i]);
+        free(p_parser->pp_argv[i]);
     }
-    free(p_command->pp_argv);
+    free(p_parser->pp_argv);
 
-    p_command->argc = 0;
-    p_command->pp_argv = NULL;
+    p_parser->argc = 0;
+    p_parser->pp_argv = NULL;
 
     status = 0;
 
