@@ -32,6 +32,7 @@ compile:
 
 # Src sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/command.o -c src/command.c
 	
 	@echo "   done"
 

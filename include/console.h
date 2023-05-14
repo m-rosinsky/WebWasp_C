@@ -6,9 +6,13 @@
  *          commands of to respective modules.
  */
 
+#ifndef CONSOLE_H
+#define CONSOLE_H
+
 #include <stdlib.h>
 #include <termios.h>
 
+#include "command.h"
 #include "utils/history.h"
 
 #define MAX_CMD_SIZE 1024
@@ -17,11 +21,14 @@
  * @brief This datatype defines a console context.
  *
  * @param p_history The command history queue.
+ * @param p_command The command_t context to hold the parsed command.
  * @param old_console The old termios console config.
+ * @param new_console The new termios console config.
  */
 typedef struct _console
 {
     history_t * p_history;
+    command_t * p_command;
     struct termios old_console;
     struct termios new_console;
 } console_t;
@@ -55,5 +62,7 @@ console_destroy (console_t * p_console);
  */
 void
 console_run (console_t * p_console);
+
+#endif // CONSOLE_H
 
 /***   end of file   ***/
