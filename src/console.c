@@ -153,6 +153,7 @@ console_run (console_t * p_console)
     printf("\r\n");
 
     char cmd_buff[MAX_CMD_SIZE];
+    int status = 0;
     for (;;)
     {
         memset(cmd_buff, '\0', MAX_CMD_SIZE);
@@ -170,7 +171,7 @@ console_run (console_t * p_console)
         history_push(p_console->p_history, cmd_buff);
 
         // Display the command buffered.
-        printf("%s\r\n", cmd_buff);
+        // printf("%s\r\n", cmd_buff);
 
         // Parse the command.
         if (-1 == parser_parse(p_console->p_parser, cmd_buff))
@@ -179,10 +180,16 @@ console_run (console_t * p_console)
         }
         
         // Handle the command.
-        printf("argc: %ld\r\n", p_console->p_parser->argc);
-        for (size_t i = 0; i < p_console->p_parser->argc; ++i)
+        status = command_dispatch(p_console->p_parser);
+        if (-1 == status)
         {
-            printf("argv[%ld]: '%s'\r\n", i, p_console->p_parser->pp_argv[i]);
+            printf("FATAL ERROR! Exiting...\r\n");
+            goto EXIT;
+        }
+        if (1 == status)
+        {
+            printf("Exiting...\r\n");
+            goto EXIT;
         }
 
         // Clear the command.
@@ -337,6 +344,7 @@ get_cmd (console_t * p_console, char * p_cmd)
         switch (c)
         {
             case KEY_CTRL('c'):
+                printf("^C");
                 status = 1;
                 goto EXIT;
             break;

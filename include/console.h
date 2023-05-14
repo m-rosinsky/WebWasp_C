@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <termios.h>
 
+#include "command.h"
 #include "parser.h"
 #include "utils/history.h"
 
