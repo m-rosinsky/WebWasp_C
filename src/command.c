@@ -11,17 +11,19 @@
 #include "../include/command.h"
 
 /*!
- * @brief This function dispatches a command based on a parser context.
+ * @brief This function dispatches a command based on a console context.
  *
  * @param[in] p_parser The parser context.
+ * @param[in] p_http The http field context.
  * 
  * @return 0 on success, 1 on graceful exit, -1 on fatal failure.
  */
 int
-command_dispatch (parser_t * p_parser)
+command_dispatch (parser_t * p_parser, http_t * p_http)
 {
     int status = -1;
-    if (NULL == p_parser)
+    if ((NULL == p_parser) ||
+        (NULL == p_http))
     {
         goto EXIT;
     }
@@ -38,6 +40,13 @@ command_dispatch (parser_t * p_parser)
         (0 == strcmp("quit", p_cmd)))
     {
         status = 1;
+        goto EXIT;
+    }
+
+    if (0 == strcmp("show", p_cmd))
+    {
+        status = command_show(p_parser, p_http);
+        status = 0;
         goto EXIT;
     }
 

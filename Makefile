@@ -31,9 +31,13 @@ compile:
 	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/utils/history.c
 
 # Src sources
-	@$(CC) $(CFLAGS) -o $(OBJS)/command.o -c src/command.c
 	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/command.o -c src/command.c
 	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c src/parser.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/http.o -c src/http.c
+
+# Command sources
+	@$(CC) $(CFLAGS) -o $(OBJS)/command_show.o -c src/commands/command_show.c
 	
 	@echo "   done"
 

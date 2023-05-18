@@ -15,16 +15,29 @@
 #include <stdio.h>
 
 #include "parser.h"
+#include "http.h"
 
 /*!
- * @brief This function dispatches a command based on a parser context.
+ * @brief This function dispatches a command based on a console context.
  *
  * @param[in] p_parser The parser context.
+ * @param[in] p_http The http field context.
  * 
  * @return 0 on success, 1 on graceful exit, -1 on fatal failure.
  */
 int
-command_dispatch (parser_t * p_parser);
+command_dispatch (parser_t * p_parser, http_t * p_http);
+
+/*!
+ * @brief This function handles the 'show' command.
+ *
+ * @param[in] p_parser The parser context.
+ * @param[in] p_http The http field context.
+ * 
+ * @return -1 on fatal failure, 0 otherwise.
+ */
+int
+command_show (parser_t * p_parser, http_t * p_http);
 
 #endif // COMMAND_H
 

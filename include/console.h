@@ -13,6 +13,7 @@
 #include <termios.h>
 
 #include "command.h"
+#include "http.h"
 #include "parser.h"
 #include "utils/history.h"
 
@@ -30,6 +31,7 @@ typedef struct _console
 {
     history_t * p_history;
     parser_t * p_parser;
+    http_t * p_http;
     struct termios old_console;
     struct termios new_console;
 } console_t;
