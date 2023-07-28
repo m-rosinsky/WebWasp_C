@@ -5,7 +5,7 @@
  *          including parsing and actual function behavior.
  */
 
-#include "../include/parser.h"
+#include "parser.h"
 
 /*!
  * @brief This function creates a new empty parser context.

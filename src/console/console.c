@@ -12,7 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../include/console.h"
+#include "console.h"
 
 /***   key macros   ***/
 
@@ -54,7 +54,6 @@ console_create (const size_t history_max)
     }
     p_console->p_history = NULL;
     p_console->p_parser = NULL;
-    p_console->p_http = NULL;
 
     // Create the history queue.
     p_console->p_history = history_create(history_max);
@@ -66,13 +65,6 @@ console_create (const size_t history_max)
     // Create the parsed command context.
     p_console->p_parser = parser_create();
     if (NULL == p_console->p_parser)
-    {
-        goto EXIT;
-    }
-
-    // Create the HTTP header context.
-    p_console->p_http = http_create();
-    if (NULL == p_console->p_http)
     {
         goto EXIT;
     }
@@ -127,14 +119,6 @@ console_destroy (console_t * p_console)
     }
     p_console->p_parser = NULL;
 
-    // Destroy the HTTP header field.
-    if ((NULL != p_console->p_http) &&
-        (-1 == http_destroy(p_console->p_http)))
-    {
-        goto EXIT;
-    }
-    p_console->p_http = NULL;
-
     status = 0;
 
     EXIT:
@@ -169,7 +153,6 @@ console_run (console_t * p_console)
     printf("\r\n");
 
     char cmd_buff[MAX_CMD_SIZE];
-    int status = 0;
     for (;;)
     {
         memset(cmd_buff, '\0', MAX_CMD_SIZE);
@@ -196,17 +179,6 @@ console_run (console_t * p_console)
         }
         
         // Handle the command.
-        status = command_dispatch(p_console->p_parser, p_console->p_http);
-        if (-1 == status)
-        {
-            printf("FATAL ERROR! Exiting...\r\n");
-            goto EXIT;
-        }
-        if (1 == status)
-        {
-            printf("Exiting...\r\n");
-            goto EXIT;
-        }
 
         // Clear the command.
         if (-1 == parser_clear(p_console->p_parser))

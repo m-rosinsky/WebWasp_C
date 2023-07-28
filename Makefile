@@ -26,18 +26,16 @@ setup:
 compile:
 	@echo -n "Compiling source files..."
 
-# Utility sources
-	@$(CC) $(CFLAGS) -o $(OBJS)/queue.o -c src/utils/queue.c
-	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/utils/history.c
-
-# Src sources
-	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console.c
-	@$(CC) $(CFLAGS) -o $(OBJS)/command.o -c src/command.c
-	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c src/parser.c
-	@$(CC) $(CFLAGS) -o $(OBJS)/http.o -c src/http.c
+# Common sources
+	@$(CC) $(CFLAGS) -o $(OBJS)/vector.o -c src/common/vector.c
 
 # Command sources
-	@$(CC) $(CFLAGS) -o $(OBJS)/command_show.o -c src/commands/command_show.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/node.o -c src/command/node.c
+
+# Console sources
+	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/console/history.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console/console.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c src/console/parser.c
 	
 	@echo "   done"
 

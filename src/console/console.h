@@ -6,16 +6,14 @@
  *          commands of to respective modules.
  */
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
+#ifndef WW_CONSOLE_CONSOLE_H
+#define WW_CONSOLE_CONSOLE_H
 
 #include <stdlib.h>
 #include <termios.h>
 
-#include "command.h"
-#include "http.h"
 #include "parser.h"
-#include "utils/history.h"
+#include "history.h"
 
 #define MAX_CMD_SIZE 1024
 
@@ -31,7 +29,6 @@ typedef struct _console
 {
     history_t * p_history;
     parser_t * p_parser;
-    http_t * p_http;
     struct termios old_console;
     struct termios new_console;
 } console_t;
@@ -66,6 +63,6 @@ console_destroy (console_t * p_console);
 void
 console_run (console_t * p_console);
 
-#endif // CONSOLE_H
+#endif // WW_CONSOLE_CONSOLE_H
 
 /***   end of file   ***/

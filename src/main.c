@@ -5,10 +5,8 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 
-#include "../include/console.h"
-#include "../include/utils/history.h"
+#include "console/console.h"
 
 /*!
  * @brief This is a temporary function for the initial commit.

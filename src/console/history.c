@@ -5,7 +5,7 @@
  *          command history.
  */
 
-#include "../../include/utils/history.h"
+#include "history.h"
 
 /*!
  * @brief This function creates a new history context.

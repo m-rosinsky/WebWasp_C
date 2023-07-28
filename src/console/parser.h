@@ -5,8 +5,8 @@
  *          including parsing and actual function behavior.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef WW_CONSOLE_PARSER_H
+#define WW_CONSOLE_PARSER_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,6 +65,6 @@ parser_parse (parser_t * p_parser, char * p_str);
 int
 parser_clear (parser_t * p_parser);
 
-#endif // PARSER_H
+#endif // WW_CONSOLE_PARSER_H
 
 /***   end of file   ***/

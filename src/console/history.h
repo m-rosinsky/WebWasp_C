@@ -5,8 +5,8 @@
  *          command history.
  */
 
-#ifndef UTILS_HISTORY_H
-#define UTILS_HISTORY_H
+#ifndef WW_CONSOLE_HISTORY_H
+#define WW_CONSOLE_HISTORY_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +60,6 @@ history_destroy (history_t * p_history);
 int
 history_push (history_t * p_history, const char * p_cmd);
 
-#endif // UTILS_HISTORY_H
+#endif // WW_CONSOLE_HISTORY_H
 
 /***   end of file   ***/
