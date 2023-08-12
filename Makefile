@@ -31,6 +31,7 @@ compile:
 
 # Command sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/node.o -c src/command/node.c
+	@$(CC) $(CFLAGS) -o $(OBJS)/command_ast.o -c src/command/command_ast.c
 
 # Console sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/console/history.c

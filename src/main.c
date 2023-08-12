@@ -6,124 +6,93 @@
 
 #include <stdio.h>
 
-#include "console/console.h"
-#include "command/node.h"
+#include "command/command_ast.h"
 #include "common/vector.h"
 
 void
-bfs(node_t * p_node)
+print_ast (command_ast_t * p_ast)
 {
-    vector_t * p_q = vector_create();
-    if (NULL == p_q)
+    if ((NULL == p_ast) ||
+        (NULL == p_ast->p_root))
     {
         goto EXIT;
     }
 
-    if (-1 == vector_push_front(p_q, p_node))
+    vector_t * p_vec = vector_create();
+    if (NULL == p_vec)
     {
         goto EXIT;
     }
 
-    while (0 != p_q->size)
+    vector_push_front(p_vec, p_ast->p_root);
+
+    node_t * p_curr = NULL;
+    while (0 != p_vec->size)
     {
-        node_t * p_curr = vector_pop_front(p_q);
+        p_curr = (node_t *) vector_pop_front(p_vec);
         if (NULL == p_curr)
         {
             goto EXIT;
         }
 
-        if (NULL != p_curr->p_data)
+        node_t * p_child = NULL;
+        for (size_t idx = 0; idx < p_curr->p_children->size; ++idx)
         {
-            printf("%s ", p_curr->p_data);
-        }
+            p_child = (node_t *) vector_at(p_curr->p_children, idx);
+            if (NULL == p_child)
+            {
+                goto EXIT;
+            }
 
-        for (size_t i = 0; i < p_curr->p_children->size; ++i)
-        {
-            if (-1 == vector_push_back(p_q, p_curr->p_children->pp_data[i]))
+            if (-1 == vector_push_back(p_vec, p_child))
             {
                 goto EXIT;
             }
         }
+
+        if (NULL == p_curr->p_data)
+        {
+            printf("NULL\n");
+        }
+        else
+        {
+            printf("'%s'\n", p_curr->p_data);
+        }
     }
 
-    printf("\n");
-
     EXIT:
-        if (NULL != p_q)
+        if (NULL != p_vec)
         {
-            vector_destroy(p_q);
-            p_q = NULL;
+            vector_destroy(p_vec);
+            p_vec = NULL;
         }
         return;
 }
 
 /*!
- * @brief This is a temporary function for the initial commit.
+ * @brief This is the main entry point of the program.
  *
  * @return The status of the program.
  */
 int
 main ()
 {
-    /*
-    console_t * p_console = console_create(5);
-    if (NULL == p_console)
-    {
-        printf("Failed to create console context...\n");
-        return 1;
-    }
-
-    console_run(p_console);
-
-    if (-1 == console_destroy(p_console))
-    {
-        printf("Failed to destroy console context...\n");
-        return 1;
-    }
-    */
-
-    node_t * p_n1 = node_create("1");
-    node_t * p_n2 = node_create("2");
-    node_t * p_n3 = node_create("3");
-    node_t * p_n4 = node_create("4");
-    node_t * p_n5 = node_create("5");
-    node_t * p_n6 = node_create("6");
-
-    if ((NULL == p_n1) ||
-        (NULL == p_n2) ||
-        (NULL == p_n3) ||
-        (NULL == p_n4) ||
-        (NULL == p_n5) ||
-        (NULL == p_n6))
+    command_ast_t * p_ast = command_ast_create();
+    if (NULL == p_ast)
     {
         printf("create\n");
         return 1;
     }
 
-   if ((-1 == node_adopt(p_n1, p_n2)) ||
-       (node_adopt(p_n1, p_n3)) ||
-       (node_adopt(p_n2, p_n4)) ||
-       (node_adopt(p_n3, p_n5)) ||
-       (node_adopt(p_n3, p_n6)))
-    {
-        printf("adopt\n");
-        return 1;
-    }
+    print_ast(p_ast);
 
-    bfs(p_n1);
-
-    if ((-1 == node_destroy(p_n1)) ||
-        (-1 == node_destroy(p_n2)) ||
-        (-1 == node_destroy(p_n3)) ||
-        (-1 == node_destroy(p_n4)) ||
-        (-1 == node_destroy(p_n5)) ||
-        (-1 == node_destroy(p_n6)))
+    if (-1 == command_ast_destroy(p_ast))
     {
         printf("destroy\n");
         return 1;
     }
 
-    printf("Exited with success\n");
+    printf("success\n");
     return 0;
 }
 
