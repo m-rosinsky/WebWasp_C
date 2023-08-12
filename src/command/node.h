@@ -44,6 +44,17 @@ node_create (const char * p_data);
 int
 node_destroy (node_t * p_node);
 
+/*!
+ * @brief This function assigns a node as a child of another node.
+ *
+ * @param[in/out] p_parent The parent node.
+ * @param[in/out] p_child The child node.
+ * 
+ * @return 0 on success, -1 on error.
+ */
+int
+node_adopt (node_t * p_parent, node_t * p_child);
+
 #endif // WW_COMMAND_NODE_H
 
 /***   end of file   ***/

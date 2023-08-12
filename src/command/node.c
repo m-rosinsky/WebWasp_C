@@ -93,6 +93,41 @@ node_destroy (node_t * p_node)
     status = 0;
 
     EXIT:
+        if (NULL != p_node)
+        {
+            free(p_node);
+            p_node = NULL;
+        }
+        return status;
+}
+
+/*!
+ * @brief This function assigns a node as a child of another node.
+ *
+ * @param[in/out] p_parent The parent node.
+ * @param[in/out] p_child The child node.
+ * 
+ * @return 0 on success, -1 on error.
+ */
+int
+node_adopt (node_t * p_parent, node_t * p_child)
+{
+    int status = -1;
+    if ((NULL == p_parent) ||
+        (NULL == p_parent->p_children) ||
+        (NULL == p_child))
+    {
+        goto EXIT;
+    }
+
+    if (-1 == vector_push_back(p_parent->p_children, p_child))
+    {
+        goto EXIT;
+    }
+
+    status = 0;
+
+    EXIT:
         return status;
 }
 
