@@ -14,6 +14,7 @@
 
 #include "parser.h"
 #include "history.h"
+#include "../command/command_ast.h"
 
 #define MAX_CMD_SIZE 1024
 
@@ -22,6 +23,7 @@
  *
  * @param p_history The command history queue.
  * @param p_parser The parser context to hold the parsed command.
+ * @param p_ast The abstract syntax tree for the commands.
  * @param old_console The old termios console config.
  * @param new_console The new termios console config.
  */
@@ -29,6 +31,7 @@ typedef struct _console
 {
     history_t * p_history;
     parser_t * p_parser;
+    command_ast_t * p_ast;
     struct termios old_console;
     struct termios new_console;
 } console_t;

@@ -8,6 +8,7 @@
 
 #include <ctype.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -16,10 +17,14 @@
 
 /***   key macros   ***/
 
-#define KEY_CTRL(k) ((k) & 0x1F)
-#define KEY_ENTER 13
-#define KEY_ESCAPE 27
-#define KEY_BACKSPACE 127
+#define KEY_CTRL(k)     ((k) & 0x1F)
+#define KEY_ENTER       13
+#define KEY_ESCAPE      27
+#define KEY_BACKSPACE   127
+#define KEY_TAB         9
+
+#define CURSOR_UP       "\033[A"
+#define CURSOR_RIGHT    "\033[C"
 
 /***   static function declarations   ***/
 
@@ -54,6 +59,7 @@ console_create (const size_t history_max)
     }
     p_console->p_history = NULL;
     p_console->p_parser = NULL;
+    p_console->p_ast = NULL;
 
     // Create the history queue.
     p_console->p_history = history_create(history_max);
@@ -65,6 +71,13 @@ console_create (const size_t history_max)
     // Create the parsed command context.
     p_console->p_parser = parser_create();
     if (NULL == p_console->p_parser)
+    {
+        goto EXIT;
+    }
+
+    // Create the command AST.
+    p_console->p_ast = command_ast_create();
+    if (NULL == p_console->p_ast)
     {
         goto EXIT;
     }
@@ -118,6 +131,14 @@ console_destroy (console_t * p_console)
         goto EXIT;
     }
     p_console->p_parser = NULL;
+
+    // Destroy the command AST.
+    if ((NULL != p_console->p_ast) &&
+        (-1 == command_ast_destroy(p_console->p_ast)))
+    {
+        goto EXIT;
+    }
+    p_console->p_ast = NULL;
 
     status = 0;
 
@@ -320,6 +341,10 @@ get_cmd (console_t * p_console, char * p_cmd)
     size_t cmd_idx = 0; // The current position in the string.
     size_t cmd_len = 0; // The length of the string.
     long hist_idx = -1; // The history idx. (-1 is the current command).
+
+    // If we need to skip a line for tab autocompletion.
+    bool b_skip_line = false;
+
     for (;;)
     {
         c = '\0';
@@ -338,6 +363,11 @@ get_cmd (console_t * p_console, char * p_cmd)
             break;
             case KEY_ENTER:
                 status = 0;
+                if (true == b_skip_line)
+                {
+                    printf("\r\n");
+                }
+                b_skip_line = false;
                 goto EXIT;
             break;
             case KEY_ESCAPE:
@@ -475,6 +505,73 @@ get_cmd (console_t * p_console, char * p_cmd)
                 p_cmd[cmd_len-1] = '\0';
                 cmd_idx--;
                 cmd_len--;
+            break;
+            case KEY_TAB:
+                // Attempt tab completion.
+                // Parse the command.
+                if (-1 == parser_parse(p_console->p_parser, p_cmd))
+                {
+                    goto EXIT;
+                }
+
+                bool move_cursor_up = true;
+
+                // Attempt completion.
+                command_ast_output_t * p_result = command_ast_complete(p_console->p_ast,
+                                                                       p_console->p_parser);
+                if (NULL == p_result)
+                {
+                    goto EXIT;
+                }
+
+                if (0 == p_result->argc)
+                {
+                    printf("\r\nNo tab completions available");
+                    b_skip_line = true;
+                }
+                else if (1 == p_result->argc)
+                {
+                    // With only one completion available, we
+                    // can replace the current command buffer with it.
+                    memset(p_cmd, '\0', MAX_CMD_SIZE);
+                    strcpy(p_cmd, p_result->argv[0]);
+                    cmd_len = strlen(p_cmd);
+                    p_cmd[cmd_len] = ' ';
+                    cmd_len++;
+                    cmd_idx = cmd_len;
+
+                    move_cursor_up = false;
+                }
+                else
+                {
+                    // Display all options for tab completions in new
+                    // line.
+                    printf("\r\n");
+                    for (size_t idx = 0; idx < p_result->argc; ++idx)
+                    {
+                        printf("%s\t", p_result->argv[idx]);
+                    }
+                    b_skip_line = true;
+                }
+
+                // Clean.
+                if ((-1 == parser_clear(p_console->p_parser) ||
+                    (-1 == command_ast_clean(p_result))))
+                {
+                    goto EXIT;
+                }
+
+                // Return cursor.
+                printf("\r");
+                if (true == move_cursor_up)
+                {
+                    printf(CURSOR_UP);
+                }
+                printf(CURSOR_RIGHT);
+                printf(CURSOR_RIGHT);
+                printf("%s", p_cmd);
+                
+                fflush(stdout);
             break;
             default:
                 if (cmd_len >= MAX_CMD_SIZE) { break; }

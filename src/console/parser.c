@@ -59,23 +59,32 @@ parser_destroy (parser_t * p_parser)
  * @brief This function parses a raw command into a parser context.
  *
  * @param[out] p_parser The parser context to parse the raw command into.
- * @param[in] p_str The raw command to process. This string is consumed
- *                      in the process.
+ * @param[in] p_str The raw command to process.
  * 
  * @return 0 on success, -1 on error.
  */
 int
-parser_parse (parser_t * p_parser, char * p_str)
+parser_parse (parser_t * p_parser, const char * p_str)
 {
     int status = -1;
+    char * p_cpy = NULL;
     if ((NULL == p_parser) ||
         (NULL == p_str))
     {
         goto EXIT;
     }
 
+    // Backup the string.
+    size_t str_len = strlen(p_str);
+    p_cpy = calloc(str_len + 1, sizeof(char));
+    if (NULL == p_cpy)
+    {
+        goto EXIT;
+    }
+    strcpy(p_cpy, p_str);
+
     // Split the string into individual arguments.
-    char * p_token = strtok(p_str, " ");
+    char * p_token = strtok(p_cpy, " ");
     while (NULL != p_token)
     {
         // Allocate memory for the current argument.
@@ -101,6 +110,11 @@ parser_parse (parser_t * p_parser, char * p_str)
     status = 0;
 
     EXIT:
+        if (NULL != p_cpy)
+        {
+            free(p_cpy);
+            p_cpy = NULL;
+        }
         return status;
 }
 

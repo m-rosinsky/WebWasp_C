@@ -46,13 +46,12 @@ parser_destroy (parser_t * p_parser);
  * @brief This function parses a raw command into a parser context.
  *
  * @param[out] p_parser The parser context to parse the raw command into.
- * @param[in] p_str The raw command to process. This string is consumed
- *                      in the process.
+ * @param[in] p_str The raw command to process.
  * 
  * @return 0 on success, -1 on error.
  */
 int
-parser_parse (parser_t * p_parser, char * p_str);
+parser_parse (parser_t * p_parser, const char * p_str);
 
 /*!
  * @brief This function clears any currently stored command information
