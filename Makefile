@@ -45,5 +45,8 @@ link: setup compile
 	@$(CC) $(CFLAGS) -o $(BINS)/$(RELEASE) src/main.c $(OBJS)/*.o
 	@echo "   done"
 
+# Test deletion for github action validation.
+	@$(RM) -rf $(OBJS) $(BINS)
+
 clean:
 	@$(RM) -rf $(OBJS) $(BINS)
