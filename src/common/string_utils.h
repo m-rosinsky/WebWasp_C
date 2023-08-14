@@ -4,8 +4,8 @@
  * @brief This file contains various string utility functions.
  */
 
-#ifndef WW_COMMON_STRING_UTILS_H
-#define WW_COMMON_STRING_UTILS_H
+#ifndef _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
+#define _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
 
 #include <stdlib.h>
 
@@ -39,31 +39,16 @@ string_split_t *
 string_split (const char * p_str, const char * p_del);
 
 /*!
- * @brief This function free's all substrings contained in a
- *          string_split_t context, but does not free the context
- *          itself.
- * 
- *          This is useful if the context will be reused in another
- *              string_split operation.
- * 
- * @param[in/out] p_split The string split context.
- *
- * @return 0 on success, -1 on error.
- */
-int
-string_split_clear (string_split_t * p_split);
-
-/*!
  * @brief This function clears a string split context and free's the
  *          context itself.
  * 
  * @param[in/out] p_split The string split context.
  * 
- * @return 0 on success, -1 on error.
+ * @return No return value expected.
  */
-int
+void
 string_split_destroy (string_split_t * p_split);
 
-#endif // WW_COMMON_STRING_UTILS_H
+#endif // _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
 
 /***   end of file   ***/

@@ -10,6 +10,7 @@
  */
 
 #include <stdbool.h>
+#include <string.h>
 
 #include "command_ast.h"
 #include "../common/vector.h"
@@ -95,30 +96,29 @@ command_ast_destroy (command_ast_t * p_ast)
         return status;
 }
 
-#include <stdio.h>
-
 /*!
  * @brief This function attempts tab completion using an ast
  *          context and a parsed command in the form of
  *          a parser context.
  * 
  * @param[in] p_ast The ast context.
- * @param[in] p_parser The parser context.
+ * @param[in] p_split The string split context.
  * 
  * @return Pointer to new command ast output context that will
  *          need to be free'd with a call to command_ast_clean.
  * 
- *          NULL on error.
+ *          NULL on error or no suggestions.
  */
 command_ast_output_t *
-command_ast_complete (const command_ast_t * p_ast, const parser_t * p_parser)
+command_ast_complete (const command_ast_t * p_ast,
+                      const string_split_t * p_split)
 {
     int status = -1;
     command_ast_output_t * p_result = NULL;
     vector_t * p_vec = NULL;
     if ((NULL == p_ast) ||
         (NULL == p_ast->p_root) ||
-        (NULL == p_parser))
+        (NULL == p_split))
     {
         goto EXIT;
     }
@@ -132,8 +132,8 @@ command_ast_complete (const command_ast_t * p_ast, const parser_t * p_parser)
     p_result->argc = 0;
     p_result->argv = NULL;
 
-    // No tokens in parser dictates success, but empty result.
-    if (0 == p_parser->argc)
+    // No tokens in split string dictates success, but empty result.
+    if (0 == p_split->len)
     {
         status = 0;
         goto EXIT;
@@ -183,16 +183,16 @@ command_ast_complete (const command_ast_t * p_ast, const parser_t * p_parser)
         // -1 since root is at zero and first commands are at
         // depth 1.
         uint32_t depth = p_curr->depth - 1;
-        if (depth >= p_parser->argc)
+        if (depth >= p_split->len)
         {
             goto EXIT;
         }
-        p_token = p_parser->pp_argv[depth];
+        p_token = p_split->pp_substrs[depth];
         tok_len = strlen(p_token);
 
         // If this is the final token of the parsed command, compare it
         // to the first part of the current node.
-        if (depth == (p_parser->argc - 1))
+        if (depth == (p_split->len - 1))
         {
             // If the token is longer than the current node, skip.
             if (tok_len > strlen(p_curr->p_data))

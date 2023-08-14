@@ -56,19 +56,12 @@ console_create ()
         goto EXIT;
     }
     p_console->p_history = NULL;
-    p_console->p_parser = NULL;
+    p_console->p_split = NULL;
     p_console->p_ast = NULL;
 
     // Create the history queue.
     p_console->p_history = history_create(HISTORY_DEFAULT_LEN);
     if (NULL == p_console->p_history)
-    {
-        goto EXIT;
-    }
-
-    // Create the parsed command context.
-    p_console->p_parser = parser_create();
-    if (NULL == p_console->p_parser)
     {
         goto EXIT;
     }
@@ -122,13 +115,9 @@ console_destroy (console_t * p_console)
     }
     p_console->p_history = NULL;
 
-    // Destroy the parsed command context.
-    if ((NULL != p_console->p_parser) &&
-        (-1 == parser_destroy(p_console->p_parser)))
-    {
-        goto EXIT;
-    }
-    p_console->p_parser = NULL;
+    // Destroy the split string context.
+    string_split_destroy(p_console->p_split);
+    p_console->p_split = NULL;
 
     // Destroy the command AST.
     if ((NULL != p_console->p_ast) &&
@@ -144,9 +133,6 @@ console_destroy (console_t * p_console)
         if (NULL != p_console)
         {
             console_finalize(p_console);
-        }
-        if (NULL != p_console)
-        {
             free(p_console);
             p_console = NULL;
         }
@@ -192,7 +178,8 @@ console_run (console_t * p_console)
         // printf("%s\r\n", cmd_buff);
 
         // Parse the command.
-        if (-1 == parser_parse(p_console->p_parser, cmd_buff))
+        p_console->p_split = string_split(cmd_buff, NULL);
+        if (NULL == p_console->p_split)
         {
             goto EXIT;
         }
@@ -200,10 +187,8 @@ console_run (console_t * p_console)
         // Handle the command.
 
         // Clear the command.
-        if (-1 == parser_clear(p_console->p_parser))
-        {
-            goto EXIT;
-        }
+        string_split_destroy(p_console->p_split);
+        p_console->p_split = NULL;
     }
 
     EXIT:
@@ -502,14 +487,15 @@ get_cmd (console_t * p_console, char * p_cmd)
             case KEY_TAB:
                 // Attempt tab completion.
                 // Parse the command.
-                if (-1 == parser_parse(p_console->p_parser, p_cmd))
+                p_console->p_split = string_split(p_cmd, NULL);
+                if (NULL == p_console->p_split)
                 {
                     goto EXIT;
                 }
 
                 // Attempt completion.
                 command_ast_output_t * p_result = command_ast_complete(p_console->p_ast,
-                                                                       p_console->p_parser);
+                                                                       p_console->p_split);
                 if (NULL == p_result)
                 {
                     goto EXIT;
@@ -546,8 +532,9 @@ get_cmd (console_t * p_console, char * p_cmd)
                 fflush(stdout);
 
                 // Clean.
-                if ((-1 == parser_clear(p_console->p_parser) ||
-                    (-1 == command_ast_clean(p_result))))
+                string_split_destroy(p_console->p_split);
+                p_console->p_split = NULL;
+                if (-1 == command_ast_clean(p_result))
                 {
                     goto EXIT;
                 }

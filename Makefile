@@ -52,9 +52,6 @@ compile:
 
 	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console/console.c
 	@echo "  [+] Compiled object $(OBJS)/console.o"
-
-	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c src/console/parser.c
-	@echo "  [+] Compiled object $(OBJS)/parser.o"
 	
 	@echo "done"
 
