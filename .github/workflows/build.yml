@@ -1,0 +1,45 @@
+# Workflow name.
+name: CI/CD Pipeline
+
+# Build Triggers.
+on:
+    push:
+    pull_request:
+
+# Jobs to do.
+jobs:
+    Pipeline_1:
+
+        # Run Target.
+        runs-on: ubuntu-latest
+
+        # Job steps.
+        steps:
+
+            # Step 1. Checkout Repo.
+            - name: Checkout Repo
+              uses: actions/checkout@v3
+
+            # Step 2. Install Dependencies
+            - name: Install Dependencies
+              run: |
+                echo "Installing dependencies..."
+                sudo apt-get update
+                sudo apt-get install -y make
+
+            # Step 3. Build C project.
+            - name: Build
+              run: |
+                echo -e "\n[+] Building webwasp...\n"
+                make
+
+            # Step 4. Validate build.
+            - name: Validate Build
+              run: |
+                echo "Validating build..."
+                if [ -f "bins/webwasp" ]; then
+                  echo "Build valid!"
+                else
+                  echo "Build failed! /bins/webwasp does not exist"
+                  exit 1
+                fi

@@ -2,7 +2,7 @@
 CC=gcc
 
 # Compiler flags.
-CFLAGS=-Wall -Wextra -pedantic
+CFLAGS=-Wall -Wextra -pedantic -Werror
 
 # Object directory
 OBJS=objs
