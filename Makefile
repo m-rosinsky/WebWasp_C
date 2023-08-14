@@ -36,6 +36,9 @@ compile:
 	@$(CC) $(CFLAGS) -o $(OBJS)/vector.o -c src/common/vector.c
 	@echo "  [+] Compiled object $(OBJS)/vector.o"
 
+	@$(CC) $(CFLAGS) -o $(OBJS)/string_utils.o -c src/common/string_utils.c
+	@echo "  [+] Compiled object $(OBJS)/string_utils.o"
+
 # Command sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/node.o -c src/command/node.c
 	@echo "  [+] Compiled object $(OBJS)/node.o"
