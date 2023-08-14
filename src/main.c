@@ -16,7 +16,7 @@
 int
 main ()
 {
-    console_t * p_console = console_create(5);
+    console_t * p_console = console_create();
     if (NULL == p_console)
     {
         printf("create\n");

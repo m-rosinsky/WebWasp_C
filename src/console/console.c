@@ -43,13 +43,11 @@ get_cmd (console_t * p_console, char * p_cmd);
 
 /*!
  * @brief This function creates a new console context.
- *
- * @param[in] history_max The maximum number of commands to remember.
  * 
  * @return Pointer to new console context. NULL on error.
  */
 console_t *
-console_create (const size_t history_max)
+console_create ()
 {
     int status = -1;
     console_t * p_console = calloc(1, sizeof(console_t));
@@ -62,7 +60,7 @@ console_create (const size_t history_max)
     p_console->p_ast = NULL;
 
     // Create the history queue.
-    p_console->p_history = history_create(history_max);
+    p_console->p_history = history_create(HISTORY_DEFAULT_LEN);
     if (NULL == p_console->p_history)
     {
         goto EXIT;

@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <termios.h>
 
+#include "config.h"
 #include "parser.h"
 #include "history.h"
 #include "../command/command_ast.h"
@@ -38,13 +39,11 @@ typedef struct _console
 
 /*!
  * @brief This function creates a new console context.
- *
- * @param[in] history_max The maximum number of commands to remember.
  * 
  * @return Pointer to new console context. NULL on error.
  */
 console_t *
-console_create (const size_t history_max);
+console_create (void);
 
 /*!
  * @brief This function destroys a console context.
