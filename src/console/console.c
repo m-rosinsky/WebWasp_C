@@ -330,7 +330,10 @@ get_cmd (console_t * p_console, char * p_cmd)
         goto EXIT;
     }
 
+    // The current character and both escape seq characters.
     char c, e1, e2;
+
+    // Clear the command buffer.
     memset(p_cmd, '\0', MAX_CMD_SIZE);
 
     // String to hold the current command if the user begins scrolling
@@ -341,9 +344,6 @@ get_cmd (console_t * p_console, char * p_cmd)
     size_t cmd_idx = 0; // The current position in the string.
     size_t cmd_len = 0; // The length of the string.
     long hist_idx = -1; // The history idx. (-1 is the current command).
-
-    // If we need to skip a line for tab autocompletion.
-    bool b_skip_line = false;
 
     for (;;)
     {
@@ -363,11 +363,6 @@ get_cmd (console_t * p_console, char * p_cmd)
             break;
             case KEY_ENTER:
                 status = 0;
-                if (true == b_skip_line)
-                {
-                    printf("\r\n");
-                }
-                b_skip_line = false;
                 goto EXIT;
             break;
             case KEY_ESCAPE:
@@ -514,8 +509,6 @@ get_cmd (console_t * p_console, char * p_cmd)
                     goto EXIT;
                 }
 
-                bool move_cursor_up = true;
-
                 // Attempt completion.
                 command_ast_output_t * p_result = command_ast_complete(p_console->p_ast,
                                                                        p_console->p_parser);
@@ -526,8 +519,7 @@ get_cmd (console_t * p_console, char * p_cmd)
 
                 if (0 == p_result->argc)
                 {
-                    printf("\r\nNo tab completions available");
-                    b_skip_line = true;
+                    // No completions, do nothing.
                 }
                 else if (1 == p_result->argc)
                 {
@@ -540,7 +532,7 @@ get_cmd (console_t * p_console, char * p_cmd)
                     cmd_len++;
                     cmd_idx = cmd_len;
 
-                    move_cursor_up = false;
+                    printf("\r> %s", p_cmd);
                 }
                 else
                 {
@@ -549,10 +541,11 @@ get_cmd (console_t * p_console, char * p_cmd)
                     printf("\r\n");
                     for (size_t idx = 0; idx < p_result->argc; ++idx)
                     {
-                        printf("%s\t", p_result->argv[idx]);
+                        printf("%s\t\t", p_result->argv[idx]);
                     }
-                    b_skip_line = true;
+                    printf("\r\n> %s", p_cmd);
                 }
+                fflush(stdout);
 
                 // Clean.
                 if ((-1 == parser_clear(p_console->p_parser) ||
@@ -560,18 +553,6 @@ get_cmd (console_t * p_console, char * p_cmd)
                 {
                     goto EXIT;
                 }
-
-                // Return cursor.
-                printf("\r");
-                if (true == move_cursor_up)
-                {
-                    printf(CURSOR_UP);
-                }
-                printf(CURSOR_RIGHT);
-                printf(CURSOR_RIGHT);
-                printf("%s", p_cmd);
-                
-                fflush(stdout);
             break;
             default:
                 if (cmd_len >= MAX_CMD_SIZE) { break; }
@@ -603,8 +584,10 @@ get_cmd (console_t * p_console, char * p_cmd)
                 }
                 fflush(stdout);
             break;
-        }
-    }
+
+        } // switch
+
+    } // for
 
     EXIT:
         return status;
