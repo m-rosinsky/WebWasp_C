@@ -27,6 +27,7 @@ node_create (const char * p_data)
     }
     p_node->p_data = NULL;
     p_node->p_children = NULL;
+    p_node->depth = 0;
 
     // Create the child vector.
     p_node->p_children = vector_create();
@@ -124,6 +125,9 @@ node_adopt (node_t * p_parent, node_t * p_child)
     {
         goto EXIT;
     }
+
+    // Set the depth of the child.
+    p_child->depth = p_parent->depth + 1;
 
     status = 0;
 

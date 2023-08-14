@@ -8,6 +8,7 @@
 #ifndef WW_COMMAND_NODE_H
 #define WW_COMMAND_NODE_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "../common/vector.h"
@@ -17,11 +18,13 @@
  *
  * @param p_data The data for the node.
  * @param p_children A vector containing the child nodes.
+ * @param depth The depth within the tree.
  */
 typedef struct _node
 {
     char * p_data;
     vector_t * p_children;
+    uint32_t depth;
 } node_t;
 
 /*!
@@ -46,6 +49,9 @@ node_destroy (node_t * p_node);
 
 /*!
  * @brief This function assigns a node as a child of another node.
+ *
+ *          The parent node will set the adopted node's depth
+ *              to one plus its own depth.
  *
  * @param[in/out] p_parent The parent node.
  * @param[in/out] p_child The child node.
