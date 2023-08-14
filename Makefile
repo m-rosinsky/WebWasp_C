@@ -19,31 +19,57 @@ DEBUG=webwasp-db
 all: setup compile link
 
 setup:
-	@echo -n "Creating subdirectories..."
-	@mkdir -p $(OBJS) $(BINS)
-	@echo "   done"
+	@echo "Creating subdirectories..."
+
+	@mkdir -p $(OBJS)
+	@echo "  [+] Created $(OBJS)"
+
+	@mkdir -p $(BINS)
+	@echo "  [+] Created $(BINS)"
+
+	@echo "done"
 
 compile:
-	@echo -n "Compiling source files..."
+	@echo "Compiling source files..."
 
 # Common sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/vector.o -c src/common/vector.c
+	@echo "  [+] Compiled object $(OBJS)/vector.o"
 
 # Command sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/node.o -c src/command/node.c
+	@echo "  [+] Compiled object $(OBJS)/node.o"
+
 	@$(CC) $(CFLAGS) -o $(OBJS)/command_ast.o -c src/command/command_ast.c
+	@echo "  [+] Compiled object $(OBJS)/command_ast.o"
 
 # Console sources
 	@$(CC) $(CFLAGS) -o $(OBJS)/history.o -c src/console/history.c
+	@echo "  [+] Compiled object $(OBJS)/history.o"
+
 	@$(CC) $(CFLAGS) -o $(OBJS)/console.o -c src/console/console.c
+	@echo "  [+] Compiled object $(OBJS)/console.o"
+
 	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c src/console/parser.c
+	@echo "  [+] Compiled object $(OBJS)/parser.o"
 	
-	@echo "   done"
+	@echo "done"
 
 link: setup compile
-	@echo -n "Linking binaries..."
+	@echo "Linking binaries..."
+
 	@$(CC) $(CFLAGS) -o $(BINS)/$(RELEASE) src/main.c $(OBJS)/*.o
-	@echo "   done"
+	@echo "  [+] Linked binary $(OBJS)/$(RELEASE)"
+	
+	@echo "done"
 
 clean:
-	@$(RM) -rf $(OBJS) $(BINS)
+	@echo "Cleaning..."
+
+	@$(RM) -rf $(OBJS)
+	@echo "  [-] Removed $(OBJS)"
+
+	@$(RM) -rf $(BINS)
+	@echo "  [-] Removed $(BINS)"
+
+	@echo "done"
