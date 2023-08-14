@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 #include "node.h"
-#include "../console/parser.h"
+#include "../common/string_utils.h"
 
 /*!
  * @brief This defines the command AST structure.
@@ -64,7 +64,7 @@ command_ast_destroy (command_ast_t * p_ast);
  *          a parser context.
  * 
  * @param[in] p_ast The ast context.
- * @param[in] p_parser The parser context.
+ * @param[in] p_split The string split context.
  * 
  * @return Pointer to new command ast output context that will
  *          need to be free'd with a call to command_ast_clean.
@@ -72,7 +72,8 @@ command_ast_destroy (command_ast_t * p_ast);
  *          NULL on error or no suggestions.
  */
 command_ast_output_t *
-command_ast_complete (const command_ast_t * p_ast, const parser_t * p_parser);
+command_ast_complete (const command_ast_t * p_ast,
+                      const string_split_t * p_split);
 
 /*!
  * @brief This function cleans an output context.
