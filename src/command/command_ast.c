@@ -443,6 +443,9 @@ add_result (command_ast_output_t * p_result, char * p_token)
     p_result->argc++;
     p_result->argv = realloc(p_result->argv, p_result->argc * sizeof(char *));
 
+    // Initialize the value.
+    p_result->argv[p_result->argc - 1] = NULL;
+
     // Allocate the string.
     size_t tok_len = strlen(p_token);
     char * p_str = calloc(tok_len + 1, sizeof(char));
@@ -450,7 +453,7 @@ add_result (command_ast_output_t * p_result, char * p_token)
     {
         goto EXIT;
     }
-    strcpy(p_str, p_token);
+    stpncpy(p_str, p_token, tok_len);
 
     // Add string to argv.
     p_result->argv[p_result->argc - 1] = p_str;

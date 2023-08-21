@@ -22,8 +22,8 @@
  *              - vector_at()
  */
 
-#ifndef WW_COMMON_VECTOR_H
-#define WW_COMMON_VECTOR_H
+#ifndef _WEBWASP_SRC_COMMON_VECTOR_H
+#define _WEBWASP_SRC_COMMON_VECTOR_H
 
 #include <stdlib.h>
 
@@ -130,6 +130,6 @@ vector_pop_front (vector_t * p_vector);
 void *
 vector_at (vector_t * p_vector, const size_t idx);
 
-#endif // WW_COMMON_VECTOR_H
+#endif // _WEBWASP_SRC_COMMON_VECTOR_H
 
 /***   end of file   ***/

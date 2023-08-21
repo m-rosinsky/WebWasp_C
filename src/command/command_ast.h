@@ -9,8 +9,8 @@
  *          structured format.
  */
 
-#ifndef WW_COMMAND_AST_H
-#define WW_COMMAND_AST_H
+#ifndef _WEBWASP_SRC_COMMAND_COMMAND_AST_H
+#define _WEBWASP_SRC_COMMAND_COMMAND_AST_H
 
 #include <stdlib.h>
 
@@ -85,6 +85,6 @@ command_ast_complete (const command_ast_t * p_ast,
 int
 command_ast_clean (command_ast_output_t * p_result);
 
-#endif // WW_COMMAND_AST_H
+#endif // _WEBWASP_SRC_COMMAND_COMMAND_AST_H
 
 /***   end of file   ***/
