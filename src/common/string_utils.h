@@ -4,8 +4,8 @@
  * @brief This file contains various string utility functions.
  */
 
-#ifndef _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
-#define _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
+#ifndef _WEBWASP_SRC_COMMON_STRING_UTILS_H
+#define _WEBWASP_SRC_COMMON_STRING_UTILS_H
 
 #include <stdlib.h>
 
@@ -49,6 +49,6 @@ string_split (const char * p_str, const char * p_del);
 void
 string_split_destroy (string_split_t * p_split);
 
-#endif // _CODE_WEBWASP_SRC_COMMON_STRING_UTILS_H
+#endif // _WEBWASP_SRC_COMMON_STRING_UTILS_H
 
 /***   end of file   ***/

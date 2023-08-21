@@ -77,7 +77,6 @@ vector_destroy (vector_t * p_vector)
             free(p_vector);
             p_vector = NULL;
         }
-        return;
 }
 
 /*!

@@ -51,7 +51,7 @@ node_create (const char * p_data)
     {
         goto EXIT;
     }
-    strcpy(p_node->p_data, p_data);
+    stpncpy(p_node->p_data, p_data, data_len);
 
     status = 0;
 

@@ -1,5 +1,5 @@
 /*!
- * @file history.c
+ * @file src/console/history.c
  *
  * @brief This file contains an implementation for handling the console's
  *          command history.
@@ -109,7 +109,7 @@ history_push (history_t * p_history, const char * p_cmd)
     // Heap allocate a copy of the new command.
     size_t cmd_len = strlen(p_cmd);
     char * p_new = calloc(cmd_len + 1, sizeof(char));
-    strncpy(p_new, p_cmd, cmd_len);
+    stpncpy(p_new, p_cmd, cmd_len);
 
     // If the array is full, free the last command in the array.
     if (p_history->size == p_history->cap)

@@ -1,13 +1,13 @@
 /*!
- * @file console.h
+ * @file src/console/console.h
  *
  * @brief This file contains the implementation for the console. It
  *          is responsible for gathering user input and passing
  *          commands of to respective modules.
  */
 
-#ifndef WW_CONSOLE_CONSOLE_H
-#define WW_CONSOLE_CONSOLE_H
+#ifndef _WEBWASP_SRC_CONSOLE_CONSOLE_H
+#define _WEBWASP_SRC_CONSOLE_CONSOLE_H
 
 #include <stdlib.h>
 #include <termios.h>
@@ -65,6 +65,6 @@ console_destroy (console_t * p_console);
 void
 console_run (console_t * p_console);
 
-#endif // WW_CONSOLE_CONSOLE_H
+#endif // _WEBWASP_SRC_CONSOLE_CONSOLE_H
 
 /***   end of file   ***/

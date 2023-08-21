@@ -1,12 +1,12 @@
 /*!
- * @file history.h
+ * @file src/console/history.h
  *
  * @brief This file contains an implementation for handling the console's
  *          command history.
  */
 
-#ifndef WW_CONSOLE_HISTORY_H
-#define WW_CONSOLE_HISTORY_H
+#ifndef _WEBWASP_SRC_CONSOLE_HISTORY_H
+#define _WEBWASP_SRC_CONSOLE_HISTORY_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +60,6 @@ history_destroy (history_t * p_history);
 int
 history_push (history_t * p_history, const char * p_cmd);
 
-#endif // WW_CONSOLE_HISTORY_H
+#endif // _WEBWASP_SRC_CONSOLE_HISTORY_H
 
 /***   end of file   ***/

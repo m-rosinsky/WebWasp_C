@@ -5,8 +5,8 @@
  *          syntax tree.
  */
 
-#ifndef WW_COMMAND_NODE_H
-#define WW_COMMAND_NODE_H
+#ifndef _WEBWASP_SRC_COMMAND_NODE_H
+#define _WEBWASP_SRC_COMMAND_NODE_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -61,6 +61,6 @@ node_destroy (node_t * p_node);
 int
 node_adopt (node_t * p_parent, node_t * p_child);
 
-#endif // WW_COMMAND_NODE_H
+#endif // _WEBWASP_SRC_COMMAND_NODE_H
 
 /***   end of file   ***/

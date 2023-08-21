@@ -5,14 +5,14 @@
  *          console to be set at compile time.
  */
 
-#ifndef WW_CONSOLE_CONFIG_H
-#define WW_CONSOLE_CONFIG_H
+#ifndef _WEBWASP_SRC_CONSOLE_CONFIG_H
+#define _WEBWASP_SRC_CONSOLE_CONFIG_H
 
 /***   History config   ***/
 
 // The number of previous commands the history saves.
 #define HISTORY_DEFAULT_LEN 20
 
-#endif // WW_CONSOLE_CONFIG_H
+#endif // _WEBWASP_SRC_CONSOLE_CONFIG_H
 
 /***   end of file   ***/
